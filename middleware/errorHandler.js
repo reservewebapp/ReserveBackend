@@ -1,9 +1,13 @@
-const { logEvents } = require('./logEvents');
+import logger from "../config/logger.js";
 
 const errorHandler = (err, req, res, next) => {
-    logEvents(`${err.name}: ${err.message}`, 'errLog.txt');
-    console.error(err.stack)
-    res.status(500).send(err.message);
-}
+  logger.error(`${req.method} ${req.url} - ${err.message}`);
 
-module.exports = errorHandler;
+  const statusCode = res.statusCode === 200 ? 500 : res.statusCode;
+  res.status(statusCode).json({
+    message: err.message || "Internal Server Error",
+    stack: process.env.NODE_ENV === "production" ? null : err.stack,
+  });
+};
+
+export default errorHandler;

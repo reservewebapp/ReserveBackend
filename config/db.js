@@ -1,30 +1,17 @@
 import mysql from "mysql2/promise";
 import dotenv from "dotenv";
 
-dotenv.config();
+// Load different .env files based on environment
+dotenv.config({ path: process.env.NODE_ENV === "test" ? ".env.test" : ".env" });
 
 const pool = mysql.createPool({
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASS,
-  database: process.env.DB_NAME,
+  host: process.env.DB_HOST || "localhost",
+  user: process.env.DB_USER || "root",
+  password: process.env.DB_PASS || "",
+  database: process.env.DB_NAME || "test_db",
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,
 });
-
-const testDBConnection = async () => {
-  try {
-    const connection = await pool.getConnection();
-    console.log("✅ MySQL Database Connected Successfully");
-    connection.release();
-  } catch (error) {
-    console.error("❌ Database Connection Failed:", error.message);
-    process.exit(1); // Exit process if DB connection fails
-  }
-};
-
-// Test DB Connection on Server Start
-testDBConnection();
 
 export default pool;
